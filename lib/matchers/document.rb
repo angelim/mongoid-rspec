@@ -14,6 +14,10 @@ module Mongoid
         @default = default
         self
       end
+      
+      def default_for_field(attr)
+        @klass.fields[attr].respond_to?(:default) ? @klass.fields[attr].default : @klass.fields[attr].default_val
+      end
 
       def matches?(klass)
         @klass = klass.is_a?(Class) ? klass : klass.class
@@ -25,8 +29,8 @@ module Mongoid
               error << " of type #{@klass.fields[attr].type}"
             end
             
-            if !@default.nil? and !@klass.fields[attr].default.nil? and @klass.fields[attr].default != @default
-              error << " with default value of #{@klass.fields[attr].default}"
+            if !@default.nil? and !default_for_field(attr).nil? and default_for_field(attr) != @default
+              error << " with default value of #{default_for_field(attr)}"
             end
 
             @errors.push("field #{attr.inspect}" << error) unless error.blank?
